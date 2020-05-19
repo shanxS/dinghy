@@ -1,0 +1,3 @@
+rootProject.name = 'play3_dinghy'
+include 'dinghy'
+
