@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "plane.control";
+option java_outer_classname = "DhingyClientRPC";
+option objc_class_prefix = "HLW";
+
+service DhingyClient {
+  rpc commit (CommitInput) returns (CommitOutput) {}
+  rpc query (QueryInput) returns (QueryOutput) {}
+}
+
+message CommitInput {
+  string key = 5;
+  string value = 6;
+}
+
+message CommitOutput {
+  bool success = 1;
+}
+
+message QueryInput {
+  string key = 1;
+}
+
+message QueryOutput {
+  string value = 1;
+}
