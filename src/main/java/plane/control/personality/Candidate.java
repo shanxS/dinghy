@@ -1,9 +1,12 @@
 package plane.control.personality;
 
+import io.grpc.stub.StreamObserver;
+import plane.control.AppendEntriesInput;
 import plane.control.Daemon;
+import plane.control.RequestVoteInput;
 import plane.control.StateMachine;
 
-public class Candidate <V extends Comparable<V>, K extends Comparable<K>> implements Personality {
+public class Candidate <K extends Comparable<K>, V extends Comparable<V>> implements Personality {
     private StateMachine<K, V> stateMachine;
 
     public Candidate(StateMachine<K, V> stateMachine) {
@@ -16,7 +19,23 @@ public class Candidate <V extends Comparable<V>, K extends Comparable<K>> implem
     }
 
     @Override
-    public void setMetamorphosisCallback(Daemon daemon) {
+    public void setMetamorphosisCallback(Daemon.DhingyInternalImp daemon) {
 
     }
+
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void requestVote(RequestVoteInput request, StreamObserver responseObserver) {
+
+    }
+
+    @Override
+    public void appendEntries(AppendEntriesInput request, StreamObserver responseObserver) {
+
+    }
+
 }

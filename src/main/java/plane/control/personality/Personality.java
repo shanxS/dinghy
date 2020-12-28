@@ -1,11 +1,19 @@
 package plane.control.personality;
 
-import plane.control.Daemon;
+import io.grpc.stub.StreamObserver;
+import plane.control.*;
 
 public interface Personality <V extends Comparable<V>, K extends Comparable<K>> {
 
+    enum Type {FOLLOWER, LEADER, CANDIDATE};
+
     void initShutdown();
 
-    void setMetamorphosisCallback(Daemon<K,V> daemon);
-//    appendEntry();
+    void setMetamorphosisCallback(Daemon.DhingyInternalImp<K,V> daemon);
+
+    void appendEntries(AppendEntriesInput request, StreamObserver<AppendEntriesOutput> responseObserver);
+
+    void requestVote(RequestVoteInput request, StreamObserver<RequestVoteOutput> responseObserver);
+
+    void start();
 }
