@@ -20,6 +20,8 @@ repositories {
 }
 
 dependencies {
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.11'
+
     implementation "io.grpc:grpc-protobuf:${grpcVersion}"
     implementation "io.grpc:grpc-stub:${grpcVersion}"
     compileOnly "org.apache.tomcat:annotations-api:6.0.53"
@@ -56,4 +58,5 @@ sourceSets {
     }
 }
 
-startScripts.enabled = false
+startScripts.enabled = true
+mainClassName = "Main"
