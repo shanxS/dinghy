@@ -35,4 +35,5 @@ message RequestVoteInput {
 message RequestVoteOutput {
   int32 term = 1;
   bool voteGranted = 2;
+  string voterid = 3;
 }

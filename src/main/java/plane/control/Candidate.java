@@ -20,7 +20,7 @@ final public class Candidate implements PersonaType {
     @Override
     public void run() {
 
-        logger.log(Level.INFO, "starting canddate1");
+        logger.log(Level.INFO, "starting candidate");
 
         try {
             RequestVoteInput request = RequestVoteInput.newBuilder()
@@ -30,14 +30,14 @@ final public class Candidate implements PersonaType {
                 .setTerm(persona.getState().getCurrentTerm() + 1)
                 .build();
 
-            logger.log(Level.INFO, "starting canddate1 req object made");
-
             persona.getState().updateState(request);
 
-            logger.log(Level.INFO, "reqesting vote " + request);
+            logger.log(Level.INFO, "requesting vote " + request);
             if (didWin(persona.getClientHandler().callRequestVote(request))) {
+                logger.log(Level.INFO, "won election");
                 persona.updatePersona(persona.getLeader());
             } else {
+                logger.log(Level.INFO, "lost election, back to being follower");
                 persona.updatePersona(persona.getFollower());
             }
 
@@ -49,9 +49,13 @@ final public class Candidate implements PersonaType {
 
     private boolean didWin(List<RequestVoteOutput> votes) {
         int inFavor = 0;
-        for(RequestVoteOutput v : votes) if(v.getVoteGranted()) ++inFavor;
+        StringBuilder sb = new StringBuilder();
+        for(RequestVoteOutput v : votes) if(v.getVoteGranted()) {
+            ++inFavor;
+            sb.append(v.getVoterid() + " ");
+        }
 
-        logger.log(Level.INFO, "got " + inFavor + " votes");
+        logger.log(Level.INFO, "got " + inFavor + " votes, from " + sb.toString());
 
         return persona.getMajorityNumber() <= inFavor;
     }
@@ -69,10 +73,11 @@ final public class Candidate implements PersonaType {
         return RequestVoteOutput.newBuilder()
                 .setVoteGranted(false)
                 .setTerm(persona.getState().getCurrentTerm())
+                .setVoterid(persona.getIdentity())
                 .build();
     }
 
-    protected String getType() {
+    public String getType() {
         return type;
     }
 }

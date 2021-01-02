@@ -23,8 +23,7 @@ public class PersonaManager implements Runnable {
     private State state;
     private DhingyDao dao;
 
-    protected PersonaManager() {};
-    protected PersonaManager(String id, List<Integer> nodes) {
+    private PersonaManager(String id, List<Integer> nodes) {
         executor = Executors.newSingleThreadExecutor();
         follower = new Follower(this);
         candidate = new Candidate(this);
@@ -57,7 +56,7 @@ public class PersonaManager implements Runnable {
     }
 
     protected void updatePersona(PersonaType newPersona) {
-        logger.log(Level.INFO, "updating persona to " + " " + System.identityHashCode(this));
+        logger.log(Level.INFO, "updating persona to " + " " + newPersona.getType());
         currentPersona = newPersona;
         executor.submit(currentPersona);
     }
@@ -65,7 +64,8 @@ public class PersonaManager implements Runnable {
     protected String getIdentity() { return identity; }
 
     protected int getMajorityNumber() {
-        return otherNodes.size()/2;
+        // TODO: this should depend on number of nodes running
+        return 2;
     }
 
     @Override

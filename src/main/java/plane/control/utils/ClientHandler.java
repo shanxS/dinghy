@@ -2,14 +2,18 @@ package plane.control.utils;
 
 import io.grpc.Channel;
 import io.grpc.ManagedChannelBuilder;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import plane.control.*;
 import plane.control.DhingyInternalGrpc.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ClientHandler {
+    Logger logger = Logger.getLogger(Follower.class.getName());
     private HashMap<Integer, DhingyInternalBlockingStub> connections;
 
     public ClientHandler(List<Integer> otherNodes) {
@@ -36,7 +40,11 @@ public class ClientHandler {
         for(DhingyInternalBlockingStub stub : connections.values()) {
             // TODO: this assumes that all nodes are at best behaviour
             // that will not be the case
-            res.add(stub.requestVote(req));
+            try {
+                res.add(stub.requestVote(req));
+            } catch (Exception e) {
+                logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(e));
+            }
         }
 
         return res;

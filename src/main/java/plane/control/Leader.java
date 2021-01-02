@@ -17,15 +17,15 @@ final public class Leader implements PersonaType {
 
     @Override
     public AppendEntriesOutput appendEntries(AppendEntriesInput request) {
-        return persona.appendEntries(request);
+        throw new RuntimeException("Leader appendEntries not impl");
     }
 
     @Override
     public RequestVoteOutput requestVote(RequestVoteInput request) {
-        return persona.requestVote(request);
+        throw new RuntimeException("Leader requestVote not impl");
     }
 
-    protected String getType() {
+    public String getType() {
         return type;
     }
 }
