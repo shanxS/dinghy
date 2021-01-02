@@ -9,8 +9,10 @@ import java.util.logging.Logger;
 
 public class Main {
     public static void main(String[] args) throws InterruptedException, IOException {
+        int nodeId = Integer.parseInt(args[0]);
+        List<Integer> list = Arrays.asList(Integer.parseInt(args[1]),Integer.parseInt(args[2]));
         NodeWrapper node = new NodeWrapper();
-        node.start(1500, Arrays.asList(1501,1502));
+        node.start(nodeId, list);
         node.blockUntilShutdown();
     }
 }
@@ -20,11 +22,13 @@ class NodeWrapper {
     private Server server;
 
     public void start(int port, List<Integer> list) throws IOException {
+        DinghyNode node = new DinghyNode(""+port, list);
         server = ServerBuilder.forPort(port)
-                .addService(new DinghyNode(port, list))
+                .addService(node)
                 .build()
                 .start();
         logger.info("Server started, listening on " + port);
+        node.init();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

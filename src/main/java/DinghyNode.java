@@ -2,17 +2,20 @@ import io.grpc.stub.StreamObserver;
 import plane.control.*;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DinghyNode extends DhingyInternalGrpc.DhingyInternalImplBase {
 
-    private Persona persona;
+    Logger logger = Logger.getLogger(DinghyNode.class.getName());
+    private PersonaManager persona;
 
-    public DinghyNode(int id, List<Integer> otherNodes) {
-        persona = (new Persona.Builder())
+    public DinghyNode(String id, List<Integer> otherNodes) {
+        logger.log(Level.INFO, "starting node with " + id + " " + otherNodes);
+        persona = (new PersonaManager.Builder())
                 .withIdentity(id)
                 .withOtherNodes(otherNodes)
                 .build();
-        persona.init();
     }
 
     @Override
@@ -25,5 +28,9 @@ public class DinghyNode extends DhingyInternalGrpc.DhingyInternalImplBase {
     public void requestVote(RequestVoteInput request, StreamObserver<RequestVoteOutput> responseObserver) {
         responseObserver.onNext(persona.requestVote(request));
         responseObserver.onCompleted();
+    }
+
+    public void init() {
+        persona.init();
     }
 }
