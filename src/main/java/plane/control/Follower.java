@@ -1,6 +1,7 @@
 package plane.control;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import plane.control.utils.Timer;
 
 import java.util.Random;
 import java.util.concurrent.*;
@@ -17,7 +18,7 @@ final public class Follower implements PersonaType {
 
     public Follower(PersonaManager p) {
         persona = p;
-        timer = new Timer();
+        timer = new Timer("FollowerTimer", 500, 1000);
     }
 
     @Override
@@ -49,7 +50,10 @@ final public class Follower implements PersonaType {
         AppendEntriesOutput res = null;
         if(persona.getState().isValidRequest(request)) {
             timer.cancel();
-            persona.getDao().put(request.getKey(), request.getValue());
+
+            // payload will be null when leader is sending heartbeat
+            if(request.getKey() != null) persona.getDao().put(request.getKey(), request.getValue());
+
             persona.getState().updateState(request);
             res = AppendEntriesOutput.newBuilder()
                     .setTerm(persona.getState().getCurrentTerm())
@@ -87,39 +91,4 @@ final public class Follower implements PersonaType {
         return type;
     }
 
-}
-
-class Timer {
-    Logger logger = Logger.getLogger(Timer.class.getName());
-
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private final Random random = new Random();
-    private Future<Boolean> task;
-
-    void start() {
-        logger.log(Level.INFO, "started by thread " + Thread.currentThread().getId());
-        task = scheduler.schedule(() -> {
-            return true;
-        }, random.ints(150, 300).findFirst().getAsInt(), TimeUnit.MILLISECONDS);
-    }
-
-    void cancel() {
-        logger.log(Level.INFO, "cancelled by thread " + Thread.currentThread().getId());
-        if(task == null) {
-            logger.log(Level.SEVERE, "timer task is null, wtf?");
-            throw new RuntimeException("timer task is null, wtf?");
-        }
-        task.cancel(true);
-    }
-
-    // there is no need to return a value since this is just
-    // a timer and not computing anything.
-    public void get() throws ExecutionException, InterruptedException {
-        logger.log(Level.INFO, "get called by thread " + Thread.currentThread().getId());
-        if(task == null) {
-            logger.log(Level.SEVERE, "timer task null, when get() was called, wtf?");
-            throw new RuntimeException("timer task is null, when get() was called, wtf?");
-        }
-        task.get();
-    }
 }

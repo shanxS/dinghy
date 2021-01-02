@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 
-public class PersonaManager implements Runnable {
+final public class PersonaManager implements Runnable {
     Logger logger = Logger.getLogger(PersonaManager.class.getName());
 
     private ExecutorService executor;
@@ -35,13 +35,11 @@ public class PersonaManager implements Runnable {
         dao = new DhingyDao();
     }
 
-    final public void stop() {
+    public void stop() {
         if(executor != null) executor.shutdown();
     }
-
-
-    protected ExecutorService getExecutor() {
-        return executor;
+    public void init() {
+        updatePersona(follower);
     }
 
     PersonaType getCandidate() { return candidate; }
@@ -51,19 +49,15 @@ public class PersonaManager implements Runnable {
     State getState() { return state; }
     DhingyDao getDao() { return dao; }
 
-    public void init() {
-        updatePersona(follower);
-    }
-
-    protected void updatePersona(PersonaType newPersona) {
+    void updatePersona(PersonaType newPersona) {
         logger.log(Level.INFO, "updating persona to " + " " + newPersona.getType());
         currentPersona = newPersona;
         executor.submit(currentPersona);
     }
 
-    protected String getIdentity() { return identity; }
+    String getIdentity() { return identity; }
 
-    protected int getMajorityNumber() {
+    int getMajorityNumber() {
         // TODO: this should depend on number of nodes running
         return 2;
     }

@@ -23,6 +23,7 @@ message AppendEntriesInput {
 message AppendEntriesOutput {
   int32 term = 1;
   bool success = 2;
+  string nodeId = 3;
 }
 
 message RequestVoteInput {
