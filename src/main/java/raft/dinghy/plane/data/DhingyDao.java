@@ -1,4 +1,4 @@
-package plane.data;
+package raft.dinghy.plane.data;
 
 import java.util.HashMap;
 

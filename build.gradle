@@ -57,5 +57,9 @@ sourceSets {
     }
 }
 
+test {
+    useJUnitPlatform()
+}
+
 startScripts.enabled = true
-mainClassName = "Main"
+mainClassName = "raft.dinghy.Main"

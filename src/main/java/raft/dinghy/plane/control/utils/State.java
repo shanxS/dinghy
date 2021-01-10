@@ -1,7 +1,7 @@
-package plane.control.utils;
+package raft.dinghy.plane.control.utils;
 
-import plane.control.AppendEntriesInput;
-import plane.control.RequestVoteInput;
+import raft.dinghy.plane.control.AppendEntriesInput;
+import raft.dinghy.plane.control.RequestVoteInput;
 
 import java.util.ArrayList;
 import java.util.List;

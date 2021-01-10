@@ -1,4 +1,4 @@
-package plane.control;
+package raft.dinghy.plane.control;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 final public class Candidate implements PersonaType {
 
     Logger logger = Logger.getLogger(Candidate.class.getName());
-    private static final String type = "Candidate";
+    private static final Type type = Type.CANDIDATE;
 
     private PersonaManager persona;
 
@@ -77,7 +77,7 @@ final public class Candidate implements PersonaType {
                 .build();
     }
 
-    public String getType() {
+    public Type getType() {
         return type;
     }
 }

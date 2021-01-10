@@ -1,10 +1,10 @@
-package plane.control.utils;
+package raft.dinghy.plane.control.utils;
 
 import io.grpc.Channel;
 import io.grpc.ManagedChannelBuilder;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import plane.control.*;
-import plane.control.DhingyInternalGrpc.*;
+import raft.dinghy.plane.control.*;
+import raft.dinghy.plane.control.DhingyInternalGrpc.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;

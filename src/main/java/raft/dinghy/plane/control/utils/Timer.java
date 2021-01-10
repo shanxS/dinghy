@@ -1,4 +1,4 @@
-package plane.control.utils;
+package raft.dinghy.plane.control.utils;
 
 import java.util.Random;
 import java.util.concurrent.*;
@@ -6,7 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Timer {
-    Logger logger = Logger.getLogger(plane.control.utils.Timer.class.getName());
+    Logger logger = Logger.getLogger(raft.dinghy.plane.control.utils.Timer.class.getName());
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final Random random = new Random();

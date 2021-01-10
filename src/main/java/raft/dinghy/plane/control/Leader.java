@@ -1,8 +1,8 @@
-package plane.control;
+package raft.dinghy.plane.control;
 
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import plane.control.utils.Timer;
+import raft.dinghy.plane.control.utils.Timer;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 final public class Leader implements PersonaType {
     Logger logger = Logger.getLogger(Leader.class.getName());
 
-    private static final String type = "Leader";
+    private static final Type type = Type.LEADER;
 
     private Timer timer;
     private PersonaManager persona;
@@ -84,7 +84,7 @@ final public class Leader implements PersonaType {
                 .build();
     }
 
-    public String getType() {
+    public Type getType() {
         return type;
     }
 }

@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 option java_multiple_files = true;
-option java_package = "plane.control";
+option java_package = "raft.dinghy.plane.control";
 option java_outer_classname = "DhingyInternalRPC";
 option objc_class_prefix = "HLW";
 

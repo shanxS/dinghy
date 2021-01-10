@@ -1,13 +1,14 @@
-package plane.control;
+package raft.dinghy.plane.control;
 
 import org.apache.commons.lang3.NotImplementedException;
-import plane.control.utils.ClientHandler;
-import plane.control.utils.State;
-import plane.data.DhingyDao;
+import raft.dinghy.plane.control.utils.ClientHandler;
+import raft.dinghy.plane.control.utils.State;
+import raft.dinghy.plane.data.DhingyDao;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -22,6 +23,7 @@ final public class PersonaManager implements Runnable {
     private ClientHandler clientHandler;
     private State state;
     private DhingyDao dao;
+    private Consumer<PersonaType.Type> personaUpdateCallback; // used for testing
 
     private PersonaManager(String id, List<Integer> nodes) {
         executor = Executors.newSingleThreadExecutor();
@@ -51,11 +53,14 @@ final public class PersonaManager implements Runnable {
 
     void updatePersona(PersonaType newPersona) {
         logger.log(Level.INFO, "updating persona to " + " " + newPersona.getType());
+        if(personaUpdateCallback != null) personaUpdateCallback.accept(newPersona.getType());
         currentPersona = newPersona;
         executor.submit(currentPersona);
     }
 
     String getIdentity() { return identity; }
+
+    public PersonaType.Type getType() { return currentPersona.getType(); }
 
     int getMajorityNumber() {
         // TODO: this should depend on number of nodes running
@@ -73,6 +78,10 @@ final public class PersonaManager implements Runnable {
 
     public RequestVoteOutput requestVote(RequestVoteInput request) {
         return currentPersona.requestVote(request);
+    }
+
+    public void setPersonaUpdateCallback(Consumer<PersonaType.Type> c) {
+        personaUpdateCallback = c;
     }
 
     public static class Builder {
