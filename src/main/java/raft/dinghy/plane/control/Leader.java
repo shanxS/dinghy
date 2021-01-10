@@ -8,30 +8,37 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-final public class Leader implements PersonaType {
+final public class Leader extends PersonaType {
     Logger logger = Logger.getLogger(Leader.class.getName());
 
     private static final Type type = Type.LEADER;
 
-    private Timer timer;
     private PersonaManager persona;
 
     public Leader(PersonaManager p) {
         persona = p;
-        timer = new Timer("LeaderTimer", 50, 100);
     }
 
     @Override
     public void run() {
-        boolean stopBeingLeader = false;
-        while(!stopBeingLeader) {
-            try {
-                timer.start();
-                timer.get();
-                stopBeingLeader = shouldStillLead(sendHeartBeat());
-            } catch (Exception e) {
-                logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(e));
+        try (Timer timer = new Timer("LeaderTimer", 50, 100)) {
+            boolean stopBeingLeader = false;
+            while (!stopBeingLeader && !shutDown) {
+                try {
+                    timer.start();
+                    timer.get();
+                    stopBeingLeader = shouldStillLead(sendHeartBeat());
+                } catch (Exception e) {
+                    logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(e));
+                }
             }
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(e));
+        }
+
+        if(shutDown) {
+            logger.log(Level.INFO, "Shutting down");
+            return;
         }
 
         logger.log(Level.INFO, "lost election, stepping down");

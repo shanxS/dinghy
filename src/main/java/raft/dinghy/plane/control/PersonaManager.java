@@ -2,12 +2,14 @@ package raft.dinghy.plane.control;
 
 import org.apache.commons.lang3.NotImplementedException;
 import raft.dinghy.plane.control.utils.ClientHandler;
+import raft.dinghy.plane.control.utils.ControlUtils;
 import raft.dinghy.plane.control.utils.State;
 import raft.dinghy.plane.data.DhingyDao;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -16,13 +18,14 @@ import java.util.logging.Level;
 final public class PersonaManager implements Runnable {
     Logger logger = Logger.getLogger(PersonaManager.class.getName());
 
-    private ExecutorService executor;
-    private PersonaType currentPersona, candidate, follower, leader;
-    private String identity;
-    private List<Integer> otherNodes;
-    private ClientHandler clientHandler;
-    private State state;
-    private DhingyDao dao;
+    private final ExecutorService executor;
+    private final PersonaType candidate, follower, leader;
+    private final String identity;
+    private final List<Integer> otherNodes;
+    private final ClientHandler clientHandler;
+    private final State state;
+    private final DhingyDao dao;
+    private PersonaType currentPersona;
     private Consumer<PersonaType.Type> personaUpdateCallback; // used for testing
 
     private PersonaManager(String id, List<Integer> nodes) {
@@ -38,9 +41,10 @@ final public class PersonaManager implements Runnable {
     }
 
     public void stop() {
-        if(executor != null) executor.shutdown();
+        currentPersona.stop();
+        ControlUtils.stopExecutor(PersonaManager.class.getName(), executor);
     }
-    public void init() {
+    public void start() {
         updatePersona(follower);
     }
 

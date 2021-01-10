@@ -8,7 +8,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
-final public class Follower implements PersonaType {
+final public class Follower extends PersonaType {
     Logger logger = Logger.getLogger(Follower.class.getName());
     private static final Type type = Type.FOLLOWER;
 
@@ -17,25 +17,38 @@ final public class Follower implements PersonaType {
 
     public Follower(PersonaManager p) {
         persona = p;
-        timer = new Timer("FollowerTimer", 500, 1000);
     }
 
     @Override
     public void run() {
 
-        boolean didTimeout = false;
-        while(!didTimeout) {
+        try (Timer timer = new Timer("FollowerTimer", 500, 1000)){
 
-            didTimeout = true;
-            timer.start();
+            // TODO: ugh, is there a better way?
+            this.timer = timer;
 
-            try {
-                timer.get();
-            } catch (CancellationException e) {
-                didTimeout = false;
-            } catch (InterruptedException | ExecutionException e) {
-                logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(e));
+            boolean didTimeout = false;
+            while(!didTimeout && !shutDown) {
+
+                didTimeout = true;
+                timer.start();
+
+                try {
+                    timer.get();
+                } catch (CancellationException e) {
+                    didTimeout = false;
+                } catch (InterruptedException | ExecutionException e) {
+                    logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(e));
+                }
             }
+
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(e));
+        }
+
+        if(shutDown) {
+            logger.log(Level.INFO, "Shutting down");
+            return;
         }
 
         // become candidate and exit
@@ -48,6 +61,10 @@ final public class Follower implements PersonaType {
         logger.log(Level.INFO, "[AppendEntry] " + request.toString());
         AppendEntriesOutput res = null;
         if(persona.getState().isValidRequest(request)) {
+            if(timer == null) {
+                logger.log(Level.SEVERE, "[AppendEntry] why the f is timer null?");
+                throw new RuntimeException("[AppendEntry] why the f is timer null?");
+            }
             timer.cancel();
 
             // payload will be null when leader is sending heartbeat

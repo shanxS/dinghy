@@ -19,7 +19,7 @@ Leader selection works for some definition of "works"
 
 ### testing
 
-#### single node
+#### single node [DONE]
  >starts as Follower and flip flops b/n Candidate and Follower
 
 #### 3 node system

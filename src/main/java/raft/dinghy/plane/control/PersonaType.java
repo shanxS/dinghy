@@ -1,7 +1,7 @@
 package raft.dinghy.plane.control;
 
-public interface PersonaType extends Runnable{
-    enum Type {
+public abstract class PersonaType implements Runnable {
+    public enum Type {
         CANDIDATE("Candidate"),
         FOLLOWER("Follower"),
         LEADER("Leader")
@@ -19,8 +19,13 @@ public interface PersonaType extends Runnable{
     };
 
 
-    RequestVoteOutput requestVote(RequestVoteInput request);
-    AppendEntriesOutput appendEntries(AppendEntriesInput request);
+    protected volatile boolean shutDown = false;
+    protected abstract RequestVoteOutput requestVote(RequestVoteInput request);
+    protected abstract AppendEntriesOutput appendEntries(AppendEntriesInput request);
+    protected abstract Type getType();
 
-    Type getType();
+    public void stop() {
+        // atomic write
+        shutDown = true;
+    }
 }

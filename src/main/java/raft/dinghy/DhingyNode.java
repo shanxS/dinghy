@@ -4,6 +4,7 @@ import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import raft.dinghy.plane.control.*;
+import raft.dinghy.plane.control.utils.ControlUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,7 +21,7 @@ public class DhingyNode extends DhingyInternalGrpc.DhingyInternalImplBase {
     private int port;
 
     public DhingyNode(String id, List<Integer> otherNodes) {
-        logger.log(Level.INFO, "starting node with " + id + " " + otherNodes);
+        logger.log(Level.INFO, "creating node with " + id + " " + otherNodes);
         port = Integer.parseInt(id);
         persona = (new PersonaManager.Builder())
                 .withIdentity(id)
@@ -28,20 +29,20 @@ public class DhingyNode extends DhingyInternalGrpc.DhingyInternalImplBase {
                 .build();
     }
 
-    public void startServer() throws IOException {
+    public void start() throws IOException {
         server = ServerBuilder.forPort(port)
                 .addService(this)
                 .build()
                 .start();
-        logger.info("Server started, listening on " + port);
-        persona.init();
+        logger.log(Level.INFO, "starting node listening at " + port);
+        persona.start();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 // Use stderr here since the logger may have been reset by its JVM shutdown hook.
                 System.err.println("*** shutting down gRPC server since JVM is shutting down");
                 try {
-                    stopServer();
+                    DhingyNode.this.stop();
                 } catch (InterruptedException e) {
                     e.printStackTrace(System.err);
                 }
@@ -50,14 +51,37 @@ public class DhingyNode extends DhingyInternalGrpc.DhingyInternalImplBase {
         });
     }
 
-    public void stopServer() throws InterruptedException {
-        if (server != null) {
-            server.shutdown().awaitTermination(30, TimeUnit.SECONDS);
+    public void stop() throws InterruptedException {
+        if (server == null) return;
+
+        // gRPC server shutdown semantics are similar to
+        // ExecutorService's semantics, so using same pattern
+        // https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html
+        // https://grpc.github.io/grpc-java/javadoc/io/grpc/Server.html
+        try {
+            persona.stop();
+            server.shutdown();
+            // Wait a while for existing tasks to terminate
+            if (!server.awaitTermination(60, TimeUnit.SECONDS)) {
+                server.shutdownNow(); // Cancel currently executing tasks
+                // Wait a while for tasks to respond to being cancelled
+                if (!server.awaitTermination(60, TimeUnit.SECONDS)) {
+                    logger.log(Level.SEVERE, "unable to shutdown server");
+                }
+            }
+        } catch (InterruptedException ie) {
+            // (Re-)Cancel if current thread also interrupted
+            server.shutdownNow();
+            // Preserve interrupt status
+            // https://stackoverflow.com/a/36426266
+            Thread.currentThread().interrupt();
         }
     }
 
     /**
      * Await termination on the main thread since the grpc library uses daemon threads.
+     * Use this when you want parent thread to go to background and just wait until JVM
+     * is shutting down
      */
     public void blockUntilShutdown() throws InterruptedException {
         if (server != null) {

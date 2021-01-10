@@ -1,11 +1,12 @@
 package raft.dinghy.plane.control.utils;
 
+import java.io.Closeable;
 import java.util.Random;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Timer {
+public class Timer implements AutoCloseable {
     Logger logger = Logger.getLogger(raft.dinghy.plane.control.utils.Timer.class.getName());
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -36,6 +37,11 @@ public class Timer {
         task.cancel(true);
     }
 
+    private void stop() {
+        if(task != null) task.cancel(true);
+        ControlUtils.stopExecutor(raft.dinghy.plane.control.utils.Timer.class.getName(), scheduler);
+    }
+
     // there is no need to return a value since this is just
     // a timer and not computing anything.
     public void get() throws ExecutionException, InterruptedException {
@@ -45,5 +51,10 @@ public class Timer {
             throw new RuntimeException(name + "timer task is null, when get() was called, wtf?");
         }
         task.get();
+    }
+
+    @Override
+    public void close() throws Exception {
+        stop();
     }
 }

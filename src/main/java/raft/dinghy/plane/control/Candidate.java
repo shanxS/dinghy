@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-final public class Candidate implements PersonaType {
+final public class Candidate extends PersonaType {
 
     Logger logger = Logger.getLogger(Candidate.class.getName());
     private static final Type type = Type.CANDIDATE;
@@ -17,6 +17,7 @@ final public class Candidate implements PersonaType {
         persona = p;
     }
 
+    // no explicit attempt to shutdown since this does not run in loop
     @Override
     public void run() {
 
