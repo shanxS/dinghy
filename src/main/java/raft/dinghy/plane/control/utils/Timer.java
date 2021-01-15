@@ -1,13 +1,14 @@
 package raft.dinghy.plane.control.utils;
 
-import java.io.Closeable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.Random;
 import java.util.concurrent.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.Level;
 
 public class Timer implements AutoCloseable {
-    Logger logger = Logger.getLogger(raft.dinghy.plane.control.utils.Timer.class.getName());
+    private Logger logger = LogManager.getLogger(raft.dinghy.plane.control.utils.Timer.class.getName());
 
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final Random random = new Random();
@@ -31,7 +32,7 @@ public class Timer implements AutoCloseable {
     public void cancel() {
         logger.log(Level.INFO, name + "cancelled by thread " + Thread.currentThread().getId());
         if(task == null) {
-            logger.log(Level.SEVERE, name + "timer task is null, wtf?");
+            logger.log(Level.ERROR, name + "timer task is null, wtf?");
             throw new RuntimeException(name + "timer task is null, wtf?");
         }
         task.cancel(true);
@@ -47,7 +48,7 @@ public class Timer implements AutoCloseable {
     public void get() throws ExecutionException, InterruptedException {
         logger.log(Level.INFO, name + "get called by thread " + Thread.currentThread().getId());
         if(task == null) {
-            logger.log(Level.SEVERE, name + "timer task null, when get() was called, wtf?");
+            logger.log(Level.ERROR, name + "timer task null, when get() was called, wtf?");
             throw new RuntimeException(name + "timer task is null, when get() was called, wtf?");
         }
         task.get();

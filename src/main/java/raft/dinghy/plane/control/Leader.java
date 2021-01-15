@@ -2,20 +2,22 @@ package raft.dinghy.plane.control;
 
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import raft.dinghy.plane.control.utils.Timer;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.Level;
 
 final public class Leader extends PersonaType {
-    Logger logger = Logger.getLogger(Leader.class.getName());
+    private final Logger logger;
 
     private static final Type type = Type.LEADER;
 
     private PersonaManager persona;
 
     public Leader(PersonaManager p) {
+        logger = LogManager.getLogger(Leader.class.getName() + ":" + p.getIdentity());
         persona = p;
     }
 
@@ -29,11 +31,11 @@ final public class Leader extends PersonaType {
                     timer.get();
                     stopBeingLeader = shouldStillLead(sendHeartBeat());
                 } catch (Exception e) {
-                    logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(e));
+                    logger.log(Level.ERROR, ExceptionUtils.getStackTrace(e));
                 }
             }
         } catch (Exception e) {
-            logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(e));
+            logger.log(Level.ERROR, ExceptionUtils.getStackTrace(e));
         }
 
         if(shutDown) {

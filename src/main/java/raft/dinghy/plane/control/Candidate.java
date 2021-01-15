@@ -1,19 +1,21 @@
 package raft.dinghy.plane.control;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.Level;
 
 final public class Candidate extends PersonaType {
 
-    Logger logger = Logger.getLogger(Candidate.class.getName());
+    private final Logger logger;
     private static final Type type = Type.CANDIDATE;
 
     private PersonaManager persona;
 
     public Candidate(PersonaManager p) {
+        logger = LogManager.getLogger(Candidate.class.getName() + ":" + p.getIdentity());
         persona = p;
     }
 
@@ -43,7 +45,7 @@ final public class Candidate extends PersonaType {
             }
 
         } catch (Exception e) {
-            logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(e));
+            logger.log(Level.ERROR, ExceptionUtils.getStackTrace(e));
         }
 
     }

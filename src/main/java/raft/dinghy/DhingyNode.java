@@ -3,19 +3,19 @@ package raft.dinghy;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import raft.dinghy.plane.control.*;
-import raft.dinghy.plane.control.utils.ControlUtils;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.Level;
 
 public class DhingyNode extends DhingyInternalGrpc.DhingyInternalImplBase {
 
-    Logger logger = Logger.getLogger(DhingyNode.class.getName());
+    Logger logger = LogManager.getLogger(DhingyNode.class.getName());
     private PersonaManager persona;
     private Server server;
     private int port;
@@ -66,7 +66,7 @@ public class DhingyNode extends DhingyInternalGrpc.DhingyInternalImplBase {
                 server.shutdownNow(); // Cancel currently executing tasks
                 // Wait a while for tasks to respond to being cancelled
                 if (!server.awaitTermination(60, TimeUnit.SECONDS)) {
-                    logger.log(Level.SEVERE, "unable to shutdown server");
+                    logger.log(Level.ERROR, "unable to shutdown server");
                 }
             }
         } catch (InterruptedException ie) {

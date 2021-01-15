@@ -3,17 +3,18 @@ package raft.dinghy.plane.control.utils;
 import io.grpc.Channel;
 import io.grpc.ManagedChannelBuilder;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import raft.dinghy.plane.control.*;
 import raft.dinghy.plane.control.DhingyInternalGrpc.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class ClientHandler {
-    Logger logger = Logger.getLogger(Follower.class.getName());
+    private Logger logger = LogManager.getLogger(ClientHandler.class.getName());
     private HashMap<Integer, DhingyInternalBlockingStub> connections;
 
     public ClientHandler(List<Integer> otherNodes) {
@@ -43,7 +44,7 @@ public class ClientHandler {
             try {
                 res.add(stub.requestVote(req));
             } catch (Exception e) {
-                logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(e));
+                logger.log(Level.ERROR, ExceptionUtils.getStackTrace(e));
             }
         }
 

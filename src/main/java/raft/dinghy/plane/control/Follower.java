@@ -1,21 +1,23 @@
 package raft.dinghy.plane.control;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import raft.dinghy.plane.control.utils.Timer;
 
 import java.util.concurrent.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.Level;
 
 
 final public class Follower extends PersonaType {
-    Logger logger = Logger.getLogger(Follower.class.getName());
+    private final Logger logger;
     private static final Type type = Type.FOLLOWER;
 
     private PersonaManager persona;
     Timer timer;
 
     public Follower(PersonaManager p) {
+        logger = LogManager.getLogger(Follower.class.getName() + ":" + p.getIdentity());
         persona = p;
     }
 
@@ -38,12 +40,12 @@ final public class Follower extends PersonaType {
                 } catch (CancellationException e) {
                     didTimeout = false;
                 } catch (InterruptedException | ExecutionException e) {
-                    logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(e));
+                    logger.log(Level.ERROR, ExceptionUtils.getStackTrace(e));
                 }
             }
 
         } catch (Exception e) {
-            logger.log(Level.SEVERE, ExceptionUtils.getStackTrace(e));
+            logger.log(Level.ERROR, ExceptionUtils.getStackTrace(e));
         }
 
         if(shutDown) {
@@ -62,7 +64,7 @@ final public class Follower extends PersonaType {
         AppendEntriesOutput res = null;
         if(persona.getState().isValidRequest(request)) {
             if(timer == null) {
-                logger.log(Level.SEVERE, "[AppendEntry] why the f is timer null?");
+                logger.log(Level.ERROR, "[AppendEntry] why the f is timer null?");
                 throw new RuntimeException("[AppendEntry] why the f is timer null?");
             }
             timer.cancel();
