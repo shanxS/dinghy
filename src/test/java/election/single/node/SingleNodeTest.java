@@ -1,5 +1,6 @@
 package election.single.node;
 
+import election.utils.LoggerUpdate;
 import election.utils.PersonaTypeUpdateCallbackHandler;
 import election.utils.TestUtils;
 import org.junit.jupiter.api.DisplayName;

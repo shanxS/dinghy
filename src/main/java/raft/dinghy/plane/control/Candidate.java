@@ -33,10 +33,9 @@ final public class Candidate extends PersonaType {
                 .setTerm(persona.getState().getCurrentTerm() + 1)
                 .build();
 
-            persona.getState().updateState(request);
-
             logger.log(Level.INFO, "requesting vote " + request);
             if (didWin(persona.getClientHandler().callRequestVote(request))) {
+                persona.getState().updateState(request);
                 logger.log(Level.INFO, "won election");
                 persona.updatePersona(persona.getLeader());
             } else {
@@ -68,6 +67,7 @@ final public class Candidate extends PersonaType {
         return AppendEntriesOutput.newBuilder()
                 .setTerm(persona.getState().getCurrentTerm())
                 .setSuccess(false)
+                .setNodeId(persona.getIdentity())
                 .build();
     }
 

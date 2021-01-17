@@ -2,12 +2,21 @@ package election.three.node;
 
 import election.utils.PersonaTypeUpdateCallbackHandler;
 import election.utils.TestUtils;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import raft.dinghy.DhingyNode;
 import raft.dinghy.plane.control.PersonaType;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -18,10 +27,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LeaderElectionTest {
 
-    @Test
+    @RepeatedTest(5)
     @DisplayName("Start 3 node system and 2 nodes become follower and third becomes leader")
     public void leaderGetsElectedTest() throws IOException, InterruptedException {
-        Map<DhingyNode, PersonaTypeUpdateCallbackHandler> nodePersonCallbackMap = TestUtils.createNodesWithPersonaTypeUpdateCallbackHanders(Arrays.asList(1500, 1501, 1502));
+        List<Integer> ports = Arrays.asList(1500, 1501, 1502);
+        Map<DhingyNode, PersonaTypeUpdateCallbackHandler> nodePersonCallbackMap = TestUtils.createNodesWithPersonaTypeUpdateCallbackHanders(ports);
         for(DhingyNode node : nodePersonCallbackMap.keySet()) {
             node.start();
         }
@@ -43,11 +53,13 @@ public class LeaderElectionTest {
 
             System.out.println(history);
 
-            if(history.get(history.size()-1).compareTo(PersonaType.Type.LEADER) == 0) ++leaderCount;
-            if(history.get(history.size()-1).compareTo(PersonaType.Type.FOLLOWER) == 0) ++followerCount;
+            if(history.get(history.size()-1).compareTo(PersonaType.Type.LEADER) == 0) {
+                assertEquals(PersonaType.Type.CANDIDATE, history.get(history.size()-2));
+                ++leaderCount;
+            } else if(history.get(history.size()-1).compareTo(PersonaType.Type.FOLLOWER) == 0) ++followerCount;
         }
 
         assertEquals(1, leaderCount, "there should be exactly 1 leader");
-        assertEquals(2, followerCount, "there should be exactly 2 follwers");
+        assertEquals(ports.size()-1, followerCount, "there should be exactly 2 follwers");
     }
 }

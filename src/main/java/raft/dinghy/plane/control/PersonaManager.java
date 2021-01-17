@@ -67,7 +67,7 @@ final public class PersonaManager implements Runnable {
 
     int getMajorityNumber() {
         // TODO: this should depend on number of nodes running
-        return 2;
+        return otherNodes.size();
     }
 
     public PersonaType.Type getType() { return currentPersona.getType(); }

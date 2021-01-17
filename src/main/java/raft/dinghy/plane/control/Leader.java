@@ -1,6 +1,7 @@
 package raft.dinghy.plane.control;
 
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,6 +16,7 @@ final public class Leader extends PersonaType {
     private static final Type type = Type.LEADER;
 
     private PersonaManager persona;
+    private Timer timer;
 
     public Leader(PersonaManager p) {
         logger = LogManager.getLogger(Leader.class.getName() + ":" + p.getIdentity());
@@ -24,6 +26,9 @@ final public class Leader extends PersonaType {
     @Override
     public void run() {
         try (Timer timer = new Timer("LeaderTimer", 50, 100)) {
+
+            this.timer = timer;
+
             boolean stopBeingLeader = false;
             while (!stopBeingLeader && !shutDown) {
                 try {
@@ -60,7 +65,7 @@ final public class Leader extends PersonaType {
             sb.append(v.getNodeId() + " ");
         }
 
-        logger.log(Level.INFO, "got " + inFavor + " votes, from " + sb.toString());
+        logger.log(Level.INFO, "got " + inFavor + " HB response, from " + sb.toString());
 
         return persona.getMajorityNumber() > inFavor;
     }
@@ -86,9 +91,26 @@ final public class Leader extends PersonaType {
 
     @Override
     public RequestVoteOutput requestVote(RequestVoteInput request) {
+        if(persona.getState().isValidRequest(request)) {
+            logger.log(Level.INFO, "[requestVote] someone is requesting for vote and is VALID " + request.toString()
+                    + " current state: " + persona.getState().toString());
+            if(timer == null) {
+                logger.log(Level.ERROR, "[requestVote] why the f is timer null?");
+                throw new RuntimeException("[requestVote] why the f is timer null?");
+            }
+            timer.cancel();
+            return RequestVoteOutput.newBuilder()
+                    .setVoteGranted(true)
+                    .setTerm(persona.getState().getCurrentTerm())
+                    .setVoterid(persona.getIdentity())
+                    .build();
+        }
+
+        logger.log(Level.INFO, "[requestVote] someone is requesting for vote and is INVALID " + request.toString()
+                + " current state: " + persona.getState().toString());
         return RequestVoteOutput.newBuilder()
-                .setTerm(persona.getState().getCurrentTerm())
                 .setVoteGranted(false)
+                .setTerm(persona.getState().getCurrentTerm())
                 .setVoterid(persona.getIdentity())
                 .build();
     }

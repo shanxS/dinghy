@@ -30,7 +30,7 @@ public class State {
     public Integer getCurrentLeaderCommit() { return leaderCommit; }
     public List<State> getHistory() { return history; }
 
-    public void updateState(AppendEntriesInput request) {
+    public synchronized void updateState(AppendEntriesInput request) {
         history.add(new State(term, leader, leaderCommit));
         term = request.getTerm();
         leader = request.getLeaderId();
@@ -60,5 +60,8 @@ public class State {
                 && request.getLastLogTerm() < request.getTerm());
     }
 
-
+    @Override
+    public String toString() {
+        return "term: " + term + " leader:" + leader + " leaderCommit:" + leaderCommit;
+    }
 }

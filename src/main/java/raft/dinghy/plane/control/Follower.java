@@ -1,5 +1,6 @@
 package raft.dinghy.plane.control;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -75,12 +76,16 @@ final public class Follower extends PersonaType {
             persona.getState().updateState(request);
             res = AppendEntriesOutput.newBuilder()
                     .setTerm(persona.getState().getCurrentTerm())
+                    .setNodeId(persona.getIdentity())
                     .setSuccess(true)
                     .build();
         } else {
+            logger.log(Level.INFO, "[AppendEntry] invalid request. Req: " + request.toString()
+                    + " current state: " + persona.getState().toString());
             res = AppendEntriesOutput.newBuilder()
                     .setTerm(persona.getState().getCurrentTerm())
                     .setSuccess(false)
+                    .setNodeId(persona.getIdentity())
                     .build();
         }
 
@@ -90,6 +95,8 @@ final public class Follower extends PersonaType {
     @Override
     public synchronized RequestVoteOutput requestVote(RequestVoteInput request) {
         if(persona.getState().isValidRequest(request)) {
+            logger.log(Level.INFO, "[requestVote] someone is requesting for vote and is VALID " + request.toString()
+                    + " current state: " + persona.getState().toString());
             timer.cancel();
             return RequestVoteOutput.newBuilder()
                     .setVoteGranted(true)
@@ -98,6 +105,8 @@ final public class Follower extends PersonaType {
                     .build();
         }
 
+        logger.log(Level.INFO, "[requestVote] someone is requesting for vote and is INVALID " + request.toString()
+                + " current state: " + persona.getState().toString());
         return RequestVoteOutput.newBuilder()
                 .setVoteGranted(false)
                 .setTerm(persona.getState().getCurrentTerm())
